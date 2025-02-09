@@ -1,265 +1,203 @@
-# Project README
+```markdown
+# 🏆 ECS Challenge: Research Poster-Judge Assignment
 
-This repository contains **four main components**:
+## 📌 Overview
+This project streamlines the process of **assigning judges to research posters**, collecting and displaying **poster scores**, and **generating a final ranking**. It comprises four main components:
 
-1. **ECS Challenge Assignment (Part 1)**
-2. **Next.js Application**
-3. **Flask Application**
+1. **ECS Challenge Assignment (Part 1)**  
+2. **Next.js Application**  
+3. **Flask Application**  
 4. **Part 3 Ranking Algorithm**
 
-Follow the instructions below to **install dependencies** and **run** each part.
+By enforcing scheduling constraints, avoiding conflicts of interest, and leveraging semantic expertise matching, this system ensures fair and efficient allocations while providing clear outputs such as judge assignments, poster allocations, and a 0–1 matrix for visualization.
 
 ---
 
-## 1. ECS Challenge Assignment (Part 1)
+## 🔹 Key Features
+- **Constraint-Based Assignment**  
+  Automatically assigns judges to posters (Part 1) using an optimization model:
+  - Each poster gets exactly 2 judges.
+  - Each judge can review up to 6 posters.
+  - Judges cannot review their own advisee’s posters.
+  - Matching via semantic similarity + department alignment (AllenAI SPECTER).
 
-This component automates the assignment of judges to posters for the ECS Challenge. It uses a constraint-based optimization model (implemented in Python with PuLP) that assigns judges to posters while enforcing several constraints:
+- **Next.js Web Interface**  
+  A React-based frontend for uploading files, displaying results, and facilitating user interaction.
 
-- **Hard Constraints:**
+- **Flask Backend**  
+  Handles data ingestion, file processing, optional database connectivity, and provides endpoints for Part 1’s optimization logic and Part 3’s final scoring.
 
-  - Each poster must be reviewed by exactly 2 judges.
-  - Each judge reviews at most 6 posters.
-  - Judges can only review posters if they are available during the poster’s scheduled time slot.
-  - Judges are not allowed to review posters if they are also the advisor for that poster.
+- **Part 3 Ranking (Supercharged Z-Score)**  
+  Takes raw judge scores (0–10), interprets 0 as “not reviewed,” applies outlier winsorizing, and produces a final rank of posters using normalized z‐scores.
 
-- **Soft Constraints:**
-  - The model computes a compatibility score for each judge–poster pair based on:
-    - **Semantic Similarity:** Using the AllenAI SPECTER model (a SciBERT-based model fine-tuned for scientific documents) to compute embeddings from judge expertise (loaded from a separate CSV, `final_expertise.csv`) and poster abstracts.
-    - **Department Matching:** A manual keyword dictionary maps the poster’s program to one of the four departments. A binary score (1 for a match, 0 otherwise) is combined with the semantic similarity score.
-  - The objective is to maximize the total compatibility across all assignments.
-
-### 1.1 Prerequisites
-
-- **Python 3.8+**
-- The following Python packages (listed in your `requirements.txt`):
-  - `pandas`
-  - `numpy`
-  - `pulp`
-  - `sentence-transformers`
-  - `scikit-learn`
-  - `openpyxl` (for reading Excel files)
-  - Other dependencies as needed
-
-### 1.2 Installation & Setup
-
-1. **Navigate** to the ECS Challenge Assignment folder (or the root folder if all components share the same environment):
-   ```bash
-   cd path/to/your/project
-   ```
-2. (Optional) **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # (Linux/Mac)
-   # or on Windows:
-   venv\Scripts\activate
-   ```
-3. **Install** the dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Place Input Files:**
-   - Judges file: `judges.csv`
-   - Posters file: `posters.xlsx`
-   - Judge expertise file: `final_expertise.csv` (must contain at least columns `"Name"` and `"Summary"`)
-
-### 1.3 Running the Assignment Process
-
-1. **Start the Flask endpoint** by running:
-
-   ```bash
-   python app.py
-   ```
-
-   (This will start the Flask server, which exposes endpoints such as `/process-excel` for processing the input files.)
-
-2. **Upload the files** via the provided endpoint (for example, using a REST client or the Next.js frontend):
-
-   - Upload `judges.csv` and `posters.xlsx` to `/process-excel`.
-   - The process will:
-     - Load and preprocess the judges and posters data.
-     - Merge judge expertise from `final_expertise.csv` based on the judge’s full name.
-     - Map poster programs to departments using a manual keyword dictionary.
-     - Compute embeddings with the AllenAI SPECTER model.
-     - Compute compatibility scores by combining semantic similarity and department matching.
-     - Build and solve the optimization model (using PuLP with CBC).
-     - Generate output files: `posters_with_judges_specter.csv`, `judges_with_posters_specter.csv`, and `assignment_matrix.csv`.
-
-3. **Check the output files** generated in your project folder for review and further processing.
+- **Excel/CSV Outputs**  
+  Generates clear files: 
+  - Poster–Judge mappings, 
+  - Judge–Poster summaries, 
+  - 0–1 assignment matrices, 
+  - Final ranking order.
 
 ---
 
-## 2. Next.js Application
-
-### 2.1 Prerequisites
-
-- **Node.js** (version 14 or higher recommended)
-- **npm** or **yarn**
-
-### 2.2 Installation & Setup
-
-1. **Navigate** to the Next.js folder:
-   ```bash
-   cd path/to/your/project/nextjs-app
-   ```
-2. **Install** dependencies:
-   ```bash
-   npm install
-   ```
-   or
-   ```bash
-   yarn install
-   ```
-3. (Optional) **Set up environment variables** by creating a `.env.local` file in the `nextjs-app` folder.
-
-### 2.3 Running the Application
-
-- **Development mode**:
-
-  ```bash
-  npm run dev
-  ```
-
-  or
-
-  ```bash
-  yarn dev
-  ```
-
-  The app will be accessible at [http://localhost:3000](http://localhost:3000).
-
-- **Production build**:
-  ```bash
-  npm run build
-  npm run start
-  ```
-  or
-  ```bash
-  yarn build
-  yarn start
-  ```
-
----
-
-## 3. Flask Application
-
-### 3.1 Prerequisites
-
-- **Python 3.8+**
-- **pip** (or another package manager)
-
-### 3.2 Installation & Setup
-
-1. **Navigate** to the Flask folder:
-   ```bash
-   cd path/to/your/project/flask-app
-   ```
-2. (Optional) **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # (Linux/Mac)
-   # or on Windows:
-   venv\Scripts\activate
-   ```
-3. **Install** dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. (Optional) **Set up environment variables** (e.g., in a `.env` file).
-
-### 3.3 Running the Application
-
-- **Local Development**:
-
-  ```bash
-  python app.py
-  ```
-
-  or
-
-  ```bash
-  flask run
-  ```
-
-  The app will run on [http://127.0.0.1:5000](http://127.0.0.1:5000).
-
-- **Production**:
-  Use a WSGI server (e.g., Gunicorn):
-  ```bash
-  gunicorn app:app
-  ```
-
----
-
-## 4. Part 3 Ranking Algorithm
-
-- Reads an Excel file (⁠ SampleInput_Part3.xlsx ⁠) where each row is a poster and each column is a judge's score.
-  - Interprets _0_ as "not reviewed" (meaning the judge did not score that poster).
-  - Applies a "supercharged" Z-score approach:
-    - Winsorizes (clips) extreme outliers for each judge at the 5th and 95th percentile.
-    - Ignores 0 values (does not impute them).
-    - Computes each judge's mean and std dev only from non-zero scores.
-    - Converts each non-zero cell to a z-score.
-    - Sums the z-scores across the judges for each poster.
-    - Sorts the posters from highest to lowest z-sum, producing a final rank order.
-
-### 4.1 Prerequisites
-
-- **Python 3.8+**
-- Libraries such as **pandas**, **numpy**, and **openpyxl**
-
-### 4.2 Installation & Setup
-
-1. **Navigate** to the Part 3 folder:
-   ```bash
-   cd path/to/your/project/Part3
-   ```
-2. (Optional) **Create/Activate** a virtual environment.
-3. **Install** dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### 4.3 Running the Ranking Algorithm
-
-1. **Ensure** your input Excel file (e.g., `SampleInput_Part3.xlsx`) is in the Part 3 folder.
-2. **Run** the script:
-   ```bash
-   python ECS_Challenge_Part3.py
-   ```
-3. The script will:
-   - Read the Excel file (with columns such as `Poster`, `J1`, `J2`, `J3`, etc.).
-   - Treat **0** as “not reviewed” and skip those cells.
-   - Winsorize outlier scores, compute z‐scores for each judge’s reviews, and sum them for each poster.
-   - **Print** a final ranked list (from best to worst).
-
----
-
-## 5. Additional Notes
-
-- If the **Next.js** and **Flask** apps communicate, ensure the correct **API URLs** and endpoints are set in both.
-- For **Part 1**, you can adjust weights (e.g., `dept_weight` and `sim_weight`) to fine-tune the compatibility scoring.
-- For **Part 3**, you can tweak winsorizing thresholds, the `epsilon` value, or add weighting factors.
-- Check each folder’s own **README** (if available) for further details or usage examples.
-
----
-
-## 6. Contact / Support
-
-If you have questions or encounter issues, please reach out to:
-
-- **[Suved Ganduri]**
-- **[Rangel Koli]**
-- **[Saad Shah]**
-
-- **[sganduri@syr.edu]**
-- **[rakolii@syr.edu]**
-- **[sshah62@syr.edu]**
-
-Thank you for using this project!
+## 📁 Project Structure
 
 ```
+📦 ECS_Challenge_Project
+├── part1/                   # ECS Challenge Assignment (Part 1)
+│   ├── app.py               # Flask endpoint for handling judge-to-poster assignment
+│   ├── assignment_model.py  # Optimization logic using PuLP
+│   ├── final_expertise.csv  # Judge expertise data
+│   ├── posters.xlsx         # Poster information
+│   ├── judges.csv           # Judge list & availability
+│   └── requirements.txt
+├── nextjs-app/              # Next.js frontend
+│   ├── pages/               # Page components
+│   ├── components/          # Reusable UI components
+│   └── package.json
+├── flask-app/               # Additional Flask endpoints for Part 2 features or admin
+│   ├── app.py               # Flask entry point
+│   └── requirements.txt
+├── Part3/                   # Ranking algorithm (Part 3)
+│   ├── ECS_Challenge_Part3.py
+│   ├── SampleInput_Part3.xlsx
+│   └── requirements.txt
+└── README.md                # This documentation file
+```
 
+*(Adjust filenames/folders as needed for your real setup.)*
 
+---
+
+## 🛠️ Setup Instructions
+
+### 1️⃣ Install Required Packages
+
+**A. Python (3.8+)**  
+For Part 1, Flask, and Part 3:
+
+```bash
+cd path/to/your/project
+# (Optional) create a virtual environment:
+python -m venv venv
+source venv/bin/activate   # or venv\Scripts\activate on Windows
+
+pip install -r part1/requirements.txt    # For ECS Challenge Part 1
+pip install -r flask-app/requirements.txt # For the Flask application
+pip install -r Part3/requirements.txt    # For Part 3 Ranking
+```
+
+**B. Node.js (14+ recommended)**  
+For the Next.js app:
+
+```bash
+cd nextjs-app
+npm install
+# or yarn install
+```
+
+### 2️⃣ Setting Up Part 1 Data
+
+- **Judges file**: `judges.csv` (includes judge availability, department, etc.)  
+- **Posters file**: `posters.xlsx` (poster titles, programs, advisors, etc.)  
+- **Judge Expertise**: `final_expertise.csv` with columns `"Name"` and `"Summary"` for semantic analysis.
+
+*(Place these in the `part1/` folder, or the location specified in your code.)*
+
+### 3️⃣ Next.js Environment Variables
+
+If the Next.js app needs environment variables (like an API endpoint), create a `.env.local` in `nextjs-app/`. For example:
+
+```
+API_URL=http://localhost:5000
+```
+
+*(Ensure this matches the Flask endpoint URL.)*
+
+### 4️⃣ Flask Environment Variables (Optional)
+
+If the Flask apps require specific configs (like `FLASK_ENV=development`, database credentials, or an Anthropic API key), set them in a `.env` file or export them in your environment.
+
+---
+
+## 🚀 How to Run the Project
+
+1. **Part 1 (ECS Challenge Assignment)**
+
+   - Navigate to `part1/`.  
+   - Start the Flask endpoint:  
+     ```bash
+     python app.py
+     ```
+   - (Alternatively, some versions might require running `main.py`—depends on how you structured it.)
+   - **Upload** your files (`judges.csv`, `posters.xlsx`) via the endpoint (e.g., `/process-excel`) or direct file paths.
+   - The system will:
+     1. **Load** judge/poster data.
+     2. **Compute** embeddings (AllenAI SPECTER) + department matching.
+     3. **Solve** the assignment model (PuLP).
+     4. **Output** CSV/Excel files (e.g., `posters_with_judges_specter.csv`).
+
+2. **Next.js App**  
+   - Go to `nextjs-app/`.
+   - Development:
+     ```bash
+     npm run dev
+     ```
+     The app should be at [http://localhost:3000](http://localhost:3000).  
+   - Production:
+     ```bash
+     npm run build
+     npm run start
+     ```
+
+3. **Flask Application** (for additional endpoints or Part 2 scoring)  
+   - Go to `flask-app/`.  
+   - Run:
+     ```bash
+     python app.py
+     ```
+   - By default, Flask listens on [http://127.0.0.1:5000](http://127.0.0.1:5000).  
+
+4. **Part 3 Ranking Algorithm**  
+   - Go to `Part3/`.
+   - Make sure your input file (e.g., `SampleInput_Part3.xlsx`) is there.
+   - Run:
+     ```bash
+     python ECS_Challenge_Part3.py
+     ```
+   - This will compute z‐scores for each poster’s judge scores (0 = not reviewed), winsorize outliers, and **print** a final ranking.
+
+---
+
+## 📊 Generated Output Files
+
+1. **posters_with_judges_specter.csv**  
+   - Shows which judges are assigned to each poster (Part 1).  
+2. **judges_with_posters_specter.csv**  
+   - Summarizes how many posters each judge sees (Part 1).  
+3. **assignment_matrix.csv** (or `.xlsx`)  
+   - 0–1 matrix linking posters and judges.  
+4. **Ranking Output (Part 3)**  
+   - The script prints a sorted list. If needed, you can modify the script to generate an Excel or CSV.
+
+---
+
+## ⚠️ Error Handling
+
+In each component, we’ve added **try/except** blocks or checks to handle unexpected data or runtime issues.  
+- **Part 1**: If the optimization fails, it logs an error but continues so you can inspect partial outputs.  
+- **Next.js**: Basic error messages appear in the console and browser.  
+- **Flask**: Exceptions are logged in the terminal.  
+- **Part 3**: If a judge has zero variance or no scores, the script either skips them or applies a fallback epsilon for standard deviation.
+
+---
+
+## Contact / Support
+
+If you have questions or encounter issues, please contact the **ECS Challenge Team**:
+
+- **Suved Ganduri** (sganduri@syr.edu)  
+- **Rangel Koli** (rakolii@syr.edu)  
+- **Saad Shah** (sshah62@syr.edu)
+
+Thank you for using this project!
 ```
