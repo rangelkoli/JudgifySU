@@ -2,12 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import os
-import pandas as pd
 import pulp
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from supabase import create_client
 import numpy as np
+
 app = Flask(__name__)
 CORS(app, resources={
     r"/scoring-posters/*": {
@@ -92,15 +92,17 @@ def process_excel():
         file2 = request.files['file2']
         print(file1)
         print(file2)
-        file1.save('judges.csv')
+        file1.save('judges.xlsx')
         file2.save('posters.xlsx')
         print("SAVED")
                 # Load the CSV files
         # judges_df = pd.read_excel('judges.xlsx', engine='openpyxl')
-        judges_df = pd.read_csv('judges.csv')
+        judges_df = pd.read_excel('judges.xlsx')
         posters_df = pd.read_excel('posters.xlsx', engine='openpyxl')
+        research_expertise = pd.read_csv('final_expertise.csv')
         print(judges_df)
         print(posters_df)
+        print(research_expertise)
         # ----- Preprocess Judges Data -----
         # Ensure text fields are cleaned and filled
         print("ASdasd")
@@ -110,9 +112,10 @@ def process_excel():
         judges_df['Judge'] = judges_df['Judge'].astype(str).str.strip()
         # Create a full name for each judge (for advisor conflict checking)
         judges_df['JudgeFullName'] = judges_df['Judge FirstName'] + " " + judges_df['Judge LastName']
+        print(judges_df)
         # Ensure Research_Expertise is a string and fill missing values
-        judges_df['Research_Expertise'] = judges_df['Research_Expertise'].fillna("").astype(str).str.strip()
-
+        pd.merge(judges_df, research_expertise, on='JudgeFullName', how='left')
+        judges_df['Research_Expertise'] = judges_df['Summary'].fillna("").astype(str).str.strip()
         # Map the "Hour available" into a list of available time slots.
         def map_hour_available(val):
             val = str(val).strip().lower()
@@ -125,7 +128,7 @@ def process_excel():
             else:
                 return [1, 2]  # Default if unexpected
         judges_df['AvailableHours'] = judges_df['Hour available'].apply(map_hour_available)
-
+        print(judges_df)
         # ----- Preprocess Posters Data -----
         # Ensure the Abstract field is a string and fill missing values
         posters_df['Abstract'] = posters_df['Abstract'].fillna("").astype(str).str.strip()

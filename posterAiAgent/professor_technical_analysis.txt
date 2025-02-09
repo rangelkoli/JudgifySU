@@ -1,0 +1,9 @@
+1. Technical Expertise: Experimental fluid dynamics, machine learning in fluids, particle image velocimetry (PIV), particle streak velocimetry (PSP), supersonic flows, active flow control, vortex dynamics, acoustics, ultrasound, electronics, genetic algorithms.  He utilizes automated experimentation in fluid dynamics to deploy machine learning systems.
+
+2. Research Applications: Development of swirling jet actuators for flow control (patent pending or granted – details need verification from patent databases).  Research focuses on improving aerodynamic performance and noise reduction in jets.
+
+3. Specialized Knowledge: Expertise in high-speed flow measurement and analysis techniques; utilizes state-of-the-art diagnostic tools;  proficient in applying machine learning to fluid dynamics problems.
+
+4. Interdisciplinary Impact: His work combines fluid dynamics, aerospace engineering, and machine learning.  His expertise in electronics and acoustics also suggests interdisciplinary connections.
+
+5. Active Projects:  Currently working on active flow control and vortex dynamics of external bluff body flows;  research at Syracuse University focuses on leveraging automated experiments in fluid dynamics to deploy machine learning systems to achieve tangible improvements in aerodynamic performance and noise reduction.  Specific grant details require further investigation.
