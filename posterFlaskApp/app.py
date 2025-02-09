@@ -7,20 +7,26 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from supabase import create_client
 import numpy as np
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={
     r"/scoring-posters/*": {
-        "origins": ["http://localhost:3000"],
+        "origins": [os.getenv('CORS_ORIGIN')],
         "methods": ["POST", "OPTIONS"],
         "allow_headers": ["Content-Type"],
         "supports_credentials": True
     }
 })
+
 # Initialize Supabase client
-supabase_url = "https://uhquyrxyrbkmnlxqjitw.supabase.co"
-supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocXV5cnh5cmJrbW5seHFqaXR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkwMzQxMjgsImV4cCI6MjA1NDYxMDEyOH0.BvnzrEWoc2llhEv1DFoTOOgntlM7F5GxLZPuVfBMrCI"
-supabase = create_client(supabase_url, supabase_key)
+supabase = create_client(
+    os.getenv('SUPABASE_URL'),
+    os.getenv('SUPABASE_KEY')
+)
 
 
 # Add these functions after your process_excel function
@@ -265,8 +271,7 @@ def process_excel():
         # =============================================================================
 
         # Use the CBC solver (via COIN_CMD) with the appropriate path.
-        cbc_path = '/opt/homebrew/bin/cbc'  # Adjust this path as needed.
-        solver = pulp.COIN_CMD(path=cbc_path)
+        solver = pulp.COIN_CMD(path=os.getenv('CBC_SOLVER_PATH'))
         result_status = prob.solve(solver)
         print("Solver Status:", pulp.LpStatus[prob.status])
 
@@ -312,7 +317,7 @@ def process_excel():
         assignment_matrix.to_csv("assignment_matrix.csv")
         print("Assignment Matrix File saved as 'assignment_matrix.csv'.")
 
-
+        
 
         return jsonify({'message': 'Files processed successfully'}), 200
 
@@ -339,6 +344,10 @@ def scoring_posters():
 
     df = pd.read_excel('main_scores.xlsx')
     print(df)
+    
+    # Get the poster titles from the Excel file
+    titles_df = pd.read_excel('posters.xlsx')[['Poster #', 'Title']]
+    
     # Identify judge columns (assuming columns named J1, J2, J3, etc.)
     judge_cols = [c for c in df.columns if c.startswith("J")]
 
@@ -397,21 +406,43 @@ def scoring_posters():
     print("=== FINAL RANKING (Best to Worst) ===\n")
     rank = 1
 
-    final_rank = []
-    for _, row in z_df.iterrows():
+    winners = []
+    top_3 = []
+    other_posters = []
+    rank = 1
 
+    for _, row in z_df.iterrows():
         poster_id = row["Poster"]
-        score_sum = row["Z_Sum"]
-        # If the poster never got any reviews, that sum might be NaN, handle that
-        if pd.isna(score_sum):
-            score_sum = 0
-        print(f"{rank}. Poster {poster_id} (Z-Sum = {score_sum:.2f})")
-        final_rank.append(f"Poster {poster_id} (Z-Sum = {score_sum:.2f})")
+        score_sum = row["Z_Sum"] if not pd.isna(row["Z_Sum"]) else 0
+        
+        # Get the title for this poster
+        poster_title = titles_df[titles_df['Poster #'] == poster_id]['Title'].iloc[0]
+        
+        poster_data = {
+            "rank": rank,
+            "poster_id": int(poster_id),
+            "title": poster_title,
+            "score": round(float(score_sum), 2)
+        }
+        
+        if rank <= 3:
+            top_3.append(poster_data)
+        else:
+            other_posters.append(poster_data)
+        
         rank += 1
     
-    return jsonify({'message': 'Files processed successfully', 'winners': final_rank}), 200
+    winners = {
+        "top_3": top_3,
+        "other_posters": other_posters
+    }
+    
+    return jsonify({
+        'message': 'Files processed successfully', 
+        'winners': winners
+    }), 200
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'False').lower() == 'true')
