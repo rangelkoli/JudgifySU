@@ -114,7 +114,8 @@ def process_excel():
         judges_df['JudgeFullName'] = judges_df['Judge FirstName'] + " " + judges_df['Judge LastName']
         print(judges_df)
         # Ensure Research_Expertise is a string and fill missing values
-        pd.merge(judges_df, research_expertise, on='JudgeFullName', how='left')
+        judges_df = pd.merge(judges_df, research_expertise[['JudgeFullName', 'Summary']], on='JudgeFullName', how='left')
+        print(judges_df)
         judges_df['Research_Expertise'] = judges_df['Summary'].fillna("").astype(str).str.strip()
         # Map the "Hour available" into a list of available time slots.
         def map_hour_available(val):
