@@ -41,28 +41,32 @@ By enforcing scheduling constraints, avoiding conflicts of interest, and leverag
 
 ## 📁 Project Structure
 
-```
-📦 ECS_Challenge_Project
-├── part1/                   # ECS Challenge Assignment (Part 1)
-│   ├── app.py               # Flask endpoint for handling judge-to-poster assignment
-│   ├── assignment_model.py  # Optimization logic using PuLP
-│   ├── final_expertise.csv  # Judge expertise data
-│   ├── posters.xlsx         # Poster information
-│   ├── judges.csv           # Judge list & availability
+```markdown
+
+```text
+ECS_Challenge_Project
+├── part1/                      # ECS Challenge Assignment (Part 1)
+│   ├── app.py                  # Flask endpoint for handling judge-to-poster assignment
+│   ├── assignment_model.py     # Optimization logic using PuLP
+│   ├── final_expertise.csv     # Judge expertise data
+│   ├── posters.xlsx            # Poster information
+│   ├── judges.csv              # Judge list & availability
 │   └── requirements.txt
-├── nextjs-app/              # Next.js frontend
-│   ├── pages/               # Page components
-│   ├── components/          # Reusable UI components
+├── nextjs-app/                 # Next.js frontend
+│   ├── pages/                  # Page components
+│   ├── components/             # Reusable UI components
 │   └── package.json
-├── flask-app/               # Additional Flask endpoints for Part 2 features or admin
-│   ├── app.py               # Flask entry point
+├── flask-app/                  # Additional Flask endpoints for Part 2 features or admin
+│   ├── app.py                  # Flask entry point
 │   └── requirements.txt
-├── Part3/                   # Ranking algorithm (Part 3)
+├── Part3/                      # Ranking algorithm (Part 3)
 │   ├── ECS_Challenge_Part3.py
 │   ├── SampleInput_Part3.xlsx
 │   └── requirements.txt
-└── README.md                # This documentation file
+└── README.md                   # This documentation file
 ```
+```
+
 
 *(Adjust filenames/folders as needed for your real setup.)*
 
