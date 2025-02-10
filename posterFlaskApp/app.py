@@ -399,10 +399,19 @@ def scoring_posters():
     # 4) Sum each poster's z-scores across the judge columns, ignoring NaN
     z_df["Z_Sum"] = z_df[judge_cols].sum(axis=1, skipna=True)
 
-    # 5) Sort by descending Z_Sum
-    z_df.sort_values("Z_Sum", ascending=False, inplace=True)
-
+        # 5) Sort by descending Z_Sum
+    Z_min = z_df["Z_Sum"].min()
+    Z_max = z_df["Z_Sum"].max()
     # 6) Print final rank order
+
+    def scale_to_ten(z):
+        if Z_max == Z_min:
+            # If all values are the same, just give everyone a 10 or 5, your choice
+            return 5.0
+        return 10.0 * (z - Z_min) / (Z_max - Z_min)
+    z_df["ScaledScore_0_10"] = z_df["Z_Sum"].apply(lambda x: scale_to_ten(x) if pd.notna(x) else np.nan)
+    z_df.sort_values("ScaledScore_0_10", ascending=False, inplace=True)
+
     print("=== FINAL RANKING (Best to Worst) ===\n")
     rank = 1
 
@@ -413,7 +422,7 @@ def scoring_posters():
 
     for _, row in z_df.iterrows():
         poster_id = row["Poster"]
-        score_sum = row["Z_Sum"] if not pd.isna(row["Z_Sum"]) else 0
+        score_sum = row["ScaledScore_0_10"] if not pd.isna(row["ScaledScore_0_10"]) else 0
         
         # Get the title for this poster
         poster_title = titles_df[titles_df['Poster #'] == poster_id]['Title'].iloc[0]
