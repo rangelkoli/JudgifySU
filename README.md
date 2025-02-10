@@ -1,4 +1,4 @@
-```markdown
+
 # 🏆 ECS Challenge: Research Poster-Judge Assignment
 
 ## 📌 Overview
@@ -204,4 +204,3 @@ If you have questions or encounter issues, please contact the **ECS Challenge Te
 - **Saad Shah** (sshah62@syr.edu)
 
 Thank you for using this project!
-```
