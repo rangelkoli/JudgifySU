@@ -347,10 +347,11 @@ def scoring_posters():
     
     # Get the poster titles from the Excel file
     titles_df = pd.read_excel('posters.xlsx')[['Poster #', 'Title']]
-    
+    print(titles_df)
     # Identify judge columns (assuming columns named J1, J2, J3, etc.)
-    judge_cols = [c for c in df.columns if c.startswith("J")]
-
+    judge_cols = df.columns[1:].tolist()
+    print(judge_cols)
+    print(len(judge_cols))
     # We'll keep a parallel DataFrame "z_df" for storing z-scores
     z_df = pd.DataFrame()
     z_df["Poster"] = df["Poster"]
@@ -360,16 +361,19 @@ def scoring_posters():
 
     # For each judge column, process only the nonzero (reviewed) scores.
     for col in judge_cols:
+        print(col)
         # Extract the non-zero values
         non_zero_mask = (df[col] != 0)  # True where the judge actually reviewed
         non_zero_vals = df.loc[non_zero_mask, col].astype(float)
+        print(non_zero_vals)
+
 
         if len(non_zero_vals) > 1:
             # 1) Winsorize at [5th, 95th]
             p5 = np.percentile(non_zero_vals, 5)
             p95 = np.percentile(non_zero_vals, 95)
             clipped = non_zero_vals.clip(lower=p5, upper=p95)
-
+            print(clipped)
             # 2) Compute mean & std of clipped
             col_mean = clipped.mean()
             col_std = clipped.std(ddof=0)  # population std or ddof=1 for sample
@@ -382,7 +386,8 @@ def scoring_posters():
 
             # 3) Convert these non-zero cells to z-scores
             z_scores = (clipped - col_mean) / col_std
-
+            print(clipped, col_mean, col_std)
+            print(z_scores)
             # Place these z-scores back into z_df
             for idx, z_val in z_scores.items():
                 z_df.at[idx, col] = z_val
@@ -398,7 +403,7 @@ def scoring_posters():
 
     # 4) Sum each poster's z-scores across the judge columns, ignoring NaN
     z_df["Z_Sum"] = z_df[judge_cols].sum(axis=1, skipna=True)
-
+    print(z_df)
         # 5) Sort by descending Z_Sum
     Z_min = z_df["Z_Sum"].min()
     Z_max = z_df["Z_Sum"].max()
@@ -411,7 +416,8 @@ def scoring_posters():
         return 10.0 * (z - Z_min) / (Z_max - Z_min)
     z_df["ScaledScore_0_10"] = z_df["Z_Sum"].apply(lambda x: scale_to_ten(x) if pd.notna(x) else np.nan)
     z_df.sort_values("ScaledScore_0_10", ascending=False, inplace=True)
-
+    # Save the z_df DataFrame to Excel
+    z_df.to_excel('final_scores.xlsx', index=False)
     print("=== FINAL RANKING (Best to Worst) ===\n")
     rank = 1
 
@@ -445,7 +451,7 @@ def scoring_posters():
         "top_3": top_3,
         "other_posters": other_posters
     }
-    
+    print(winners)
     return jsonify({
         'message': 'Files processed successfully', 
         'winners': winners
