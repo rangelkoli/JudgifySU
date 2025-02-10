@@ -64,7 +64,6 @@ chromadb==0.5.23
 click==8.1.7
 cloudpathlib==0.16.0
 cloudpickle==2.2.1
-clyent==1.2.2
 cohere==5.13.8
 colorama==0.4.6
 colorcet==3.0.1
