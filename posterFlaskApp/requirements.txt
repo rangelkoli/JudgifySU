@@ -497,7 +497,6 @@ rfc3986-validator==0.1.1
 rich==13.7.0
 rope==1.7.0
 rpds-py==0.22.3
-rsa==4.9
 Rtree==1.0.1
 ruamel.yaml==0.17.21
 ruamel-yaml-conda==0.17.21
