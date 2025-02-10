@@ -7,8 +7,8 @@ import type React from "react"; // Added import for React
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Research Papers List",
-  description: "A list of research papers with updatable scores",
+  title: "Judgify SU",
+  description: "A website made for the EECS challenge ",
 };
 
 export default function RootLayout({
