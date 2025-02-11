@@ -15,7 +15,7 @@ export default function AllotJudges() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
   const { toast } = useToast();
-  const BACKEND_URL = "https://judgifysu.onrender.com";
+  const BACKEND_URL = "https://judgifysu.onrender.com:5000";
 
   const handleDrop1 = (files: File[]) => {
     if (files[0] && isValidFileType(files[0])) {
@@ -144,8 +144,19 @@ export default function AllotJudges() {
             onDrop={handleDrop1}
             onError={(err) => setError(err.message)}
           >
-            <DropzoneEmptyState />
-            <DropzoneContent />
+            {file1 ? (
+              <div className='p-4 text-center'>
+                <p className='text-green-600'>File uploaded: {file1.name}</p>
+                <p className='text-sm text-gray-500'>
+                  Drop a new file to replace
+                </p>
+              </div>
+            ) : (
+              <>
+                <DropzoneEmptyState />
+                <DropzoneContent />
+              </>
+            )}
           </Dropzone>
         </div>
 
@@ -165,8 +176,19 @@ export default function AllotJudges() {
             onDrop={handleDrop2}
             onError={(err) => setError(err.message)}
           >
-            <DropzoneEmptyState />
-            <DropzoneContent />
+            {file2 ? (
+              <div className='p-4 text-center'>
+                <p className='text-green-600'>File uploaded: {file2.name}</p>
+                <p className='text-sm text-gray-500'>
+                  Drop a new file to replace
+                </p>
+              </div>
+            ) : (
+              <>
+                <DropzoneEmptyState />
+                <DropzoneContent />
+              </>
+            )}
           </Dropzone>
         </div>
 
