@@ -15,6 +15,7 @@ export default function AllotJudges() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
   const { toast } = useToast();
+  const BACKEND_URL = "https://judgifysu.onrender.com";
 
   const handleDrop1 = (files: File[]) => {
     if (files[0] && isValidFileType(files[0])) {
@@ -56,7 +57,7 @@ export default function AllotJudges() {
       formData.append("file2", file2);
 
       // Updated to use Flask backend URL
-      const response = await fetch("http://127.0.0.1:5000/process-excel", {
+      const response = await fetch(`${BACKEND_URL}/process-excel`, {
         method: "POST",
         body: formData,
       });
@@ -94,12 +95,9 @@ export default function AllotJudges() {
       // Add your proceed logic here
       console.log("Proceeding to next step...");
       // Example: Navigate to another page or trigger another action
-      const response = await fetch(
-        "http://127.0.0.1:5000//upload-to-supabase",
-        {
-          method: "POST",
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}/upload-to-supabase`, {
+        method: "POST",
+      });
 
       const data = await response.json();
       if (response.ok) {
