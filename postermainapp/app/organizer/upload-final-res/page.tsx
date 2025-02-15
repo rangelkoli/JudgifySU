@@ -52,12 +52,15 @@ export default function UploadFinalResults() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://127.0.0.1:5000/scoring-posters/", {
-        method: "POST",
-        body: formData,
-        mode: "cors",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "http://35.222.169.70:5000/scoring-posters/",
+        {
+          method: "POST",
+          body: formData,
+          mode: "cors",
+          credentials: "include",
+        }
+      );
       const data = await response.json();
       setWinners(data.winners || []);
       if (!response.ok) throw new Error("Upload failed");

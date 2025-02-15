@@ -15,7 +15,7 @@ export default function AllotJudges() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
   const { toast } = useToast();
-  const BACKEND_URL = "https://judgifysu.onrender.com:5000";
+  const BACKEND_URL = "http://35.222.169.70:5000/";
 
   const handleDrop1 = (files: File[]) => {
     if (files[0] && isValidFileType(files[0])) {
